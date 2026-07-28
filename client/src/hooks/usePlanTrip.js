@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 /**
  * Encapsulates the request lifecycle for generating a trip itinerary:
  * loading/error/data state, an AbortController per request, and a
@@ -25,7 +27,7 @@ export function usePlanTrip() {
     setError(null);
 
     try {
-      const res = await fetch("/api/plan", {
+      const res = await fetch(`${API_BASE}/api/plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description }),
