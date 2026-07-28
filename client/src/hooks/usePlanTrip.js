@@ -1,17 +1,13 @@
 import { useCallback, useRef, useState } from "react";
+import { saveSession } from "../lib/sessions.js";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
-/**
- * Encapsulates the request lifecycle for generating a trip itinerary:
- * loading/error/data state, an AbortController per request, and a
- * request-id guard so a slow, stale response can never clobber a
- * newer one that already resolved.
- */
 export function usePlanTrip() {
-  const [status, setStatus] = useState("idle"); // idle | loading | error | success
+  const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
   const [itinerary, setItinerary] = useState(null);
+  const [lastDescription, setLastDescription] = useState("");
 
   const latestRequestId = useRef(0);
   const abortRef = useRef(null);
@@ -25,6 +21,7 @@ export function usePlanTrip() {
 
     setStatus("loading");
     setError(null);
+    setLastDescription(description);
 
     try {
       const res = await fetch(`${API_BASE}/api/plan`, {
@@ -36,7 +33,6 @@ export function usePlanTrip() {
 
       const body = await res.json().catch(() => null);
 
-      // A newer request has since been kicked off -- discard this result.
       if (requestId !== latestRequestId.current) return;
 
       if (!res.ok || !body?.itinerary) {
@@ -47,9 +43,10 @@ export function usePlanTrip() {
 
       setItinerary(body.itinerary);
       setStatus("success");
+      saveSession(description, body.itinerary);
     } catch (e) {
       if (requestId !== latestRequestId.current) return;
-      if (e.name === "AbortError") return; // superseded by a newer request
+      if (e.name === "AbortError") return;
       setStatus("error");
       setError("Couldn't reach the server. Check your connection and try again.");
     }
@@ -62,5 +59,14 @@ export function usePlanTrip() {
     setItinerary(null);
   }, []);
 
-  return { status, error, itinerary, plan, reset, setItinerary };
+  const loadSession = useCallback((session) => {
+    latestRequestId.current++;
+    if (abortRef.current) abortRef.current.abort();
+    setStatus("success");
+    setError(null);
+    setLastDescription(session.description);
+    setItinerary(session.itinerary);
+  }, []);
+
+  return { status, error, itinerary, lastDescription, plan, reset, setItinerary, loadSession };
 }

@@ -1,13 +1,31 @@
+import { useEffect, useState } from "react";
 import { usePlanTrip } from "./hooks/usePlanTrip.js";
 import TripForm from "./components/TripForm.jsx";
 import Itinerary from "./components/Itinerary.jsx";
+import RecentTrips from "./components/RecentTrips.jsx";
 import { LoadingState, ErrorState, EmptyState } from "./components/StatusStates.jsx";
+import { listSessions, deleteSession } from "./lib/sessions.js";
 
 export default function App() {
-  const { status, error, itinerary, plan, reset, setItinerary } = usePlanTrip();
+  const { status, error, itinerary, plan, reset, setItinerary, loadSession } = usePlanTrip();
+  const [sessions, setSessions] = useState([]);
+
+  function refreshSessions() {
+    setSessions(listSessions());
+  }
+
+  useEffect(() => {
+    refreshSessions();
+  }, [status]);
+
+  function handleDeleteSession(id) {
+    deleteSession(id);
+    refreshSessions();
+  }
 
   return (
     <div className="app">
+      <div className="app__hero" aria-hidden="true" />
       <header className="app__header">
         <h1>Trip Planner</h1>
         <p className="app__tagline">Describe a trip. Get a day-by-day itinerary you can edit.</p>
@@ -19,9 +37,16 @@ export default function App() {
         <div className="app__result">
           {status === "loading" && <LoadingState />}
           {status === "error" && <ErrorState message={error} onRetry={reset} />}
-          {status === "idle" && <EmptyState />}
+          {status === "idle" && (
+            <>
+              <EmptyState />
+              <RecentTrips sessions={sessions} onLoad={loadSession} onDelete={handleDeleteSession} />
+            </>
+          )}
           {status === "success" && itinerary && (
-            <Itinerary itinerary={itinerary} onChange={setItinerary} />
+            <div className="itinerary-enter">
+              <Itinerary itinerary={itinerary} onChange={setItinerary} />
+            </div>
           )}
         </div>
       </main>
