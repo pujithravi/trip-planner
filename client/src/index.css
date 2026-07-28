@@ -24,16 +24,22 @@ body {
 .app {
   max-width: 720px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: 0 0 64px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: relative;
+  overflow-x: hidden;
 }
 
 .app__header h1 {
   margin: 0 0 4px;
   font-size: 1.75rem;
+  background: linear-gradient(135deg, #fff, #b9c6ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .app__tagline {
@@ -45,6 +51,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .app__footer {
@@ -52,6 +60,31 @@ body {
   color: var(--text-dim);
   font-size: 0.85rem;
   text-align: center;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.app__hero {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  margin: 0 0 24px;
+  background-color: var(--surface-2);
+  background-image:
+    linear-gradient(180deg, rgba(15, 17, 21, 0.15) 0%, rgba(15, 17, 21, 0.55) 65%, var(--bg) 100%),
+    url("https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=70");
+  background-size: cover;
+  background-position: center 55%;
+  border-radius: 0 0 20px 20px;
+}
+
+.app__header {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  padding: 0 16px;
+  z-index: 1;
 }
 
 /* --- Form --- */
@@ -64,6 +97,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  animation: fadeInUp 0.35s ease both;
 }
 
 .trip-form__label {
@@ -119,6 +153,7 @@ body {
   cursor: pointer;
   max-width: 100%;
   text-overflow: ellipsis;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .chip:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
@@ -133,12 +168,15 @@ body {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .btn--primary {
   background: var(--accent);
   color: white;
 }
+
+.btn--primary:hover:not(:disabled) { transform: translateY(-1px); }
 
 .btn--primary:disabled {
   background: var(--accent-dim);
@@ -168,6 +206,7 @@ body {
   cursor: pointer;
   font-size: 0.9rem;
   line-height: 1;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .icon-btn:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
@@ -187,6 +226,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  animation: fadeInUp 0.35s ease both;
 }
 
 .state--error { border-color: rgba(255, 107, 107, 0.4); }
@@ -203,6 +243,14 @@ body {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 /* --- Itinerary --- */
 
@@ -210,6 +258,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.itinerary-enter {
+  animation: fadeInUp 0.4s ease both;
 }
 
 .itinerary__header h2 {
@@ -226,7 +278,11 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  animation: fadeInUp 0.35s ease both;
+  transition: border-color 0.15s ease;
 }
+
+.day-card:hover { border-color: var(--accent); }
 
 .day-card__header {
   width: 100%;
@@ -262,6 +318,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  animation: fadeIn 0.2s ease both;
 }
 
 .day-card__empty {
@@ -286,8 +343,10 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
+  transition: border-color 0.15s ease;
 }
 
+.stop:hover { border-color: var(--accent); }
 .stop__icon { font-size: 1.1rem; line-height: 1.4; }
 .stop__body { flex: 1; min-width: 0; }
 
@@ -318,114 +377,11 @@ body {
   gap: 4px;
 }
 
-/* --- Mobile --- */
-
-@media (max-width: 480px) {
-  .app { padding: 16px 12px 48px; gap: 18px; }
-  .app__header h1 { font-size: 1.4rem; }
-  .day-card__header { padding: 12px; }
-  .stop { flex-wrap: wrap; }
-  .stop__actions { flex-direction: row; align-self: flex-end; }
-  .trip-form__row { flex-direction: column; align-items: stretch; gap: 8px; }
-  .trip-form__row .btn { width: 100%; }
-}
-
-/* --- Hero background + polish --- */
-
-.app {
-  position: relative;
-  overflow-x: hidden;
-}
-
-.app__hero {
-  position: absolute;
-  top: -220px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 900px;
-  height: 500px;
-  max-width: 160vw;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(91, 140, 255, 0.35), transparent 55%),
-    radial-gradient(circle at 70% 40%, rgba(160, 91, 255, 0.28), transparent 55%),
-    radial-gradient(circle at 50% 70%, rgba(91, 255, 210, 0.15), transparent 55%);
-  filter: blur(40px);
-  pointer-events: none;
-  z-index: 0;
-  animation: drift 18s ease-in-out infinite alternate;
-}
-
-@keyframes drift {
-  from { transform: translateX(-52%) translateY(0) scale(1); }
-  to { transform: translateX(-48%) translateY(20px) scale(1.05); }
-}
-
-.app__header,
-.app__main,
-.app__footer {
-  position: relative;
-  z-index: 1;
-}
-
-.app__header h1 {
-  background: linear-gradient(135deg, #fff, #b9c6ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.trip-form,
-.state,
-.day-card {
-  animation: fadeInUp 0.35s ease both;
-}
-
-.itinerary-enter {
-  animation: fadeInUp 0.4s ease both;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.day-card__body {
-  animation: fadeIn 0.2s ease both;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.day-card,
-.stop,
-.chip,
-.icon-btn,
-.btn--primary {
-  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
-}
-
-.day-card:hover { border-color: var(--accent); }
-.stop:hover { border-color: var(--accent); }
-.btn--primary:hover:not(:disabled) { transform: translateY(-1px); }
-
 /* --- Recent trips --- */
 
-.recent-trips {
-  margin-top: 4px;
-}
-
-.recent-trips__title {
-  margin: 0 0 4px;
-  font-size: 1rem;
-}
-
-.recent-trips__hint {
-  margin: 0 0 12px;
-  color: var(--text-dim);
-  font-size: 0.82rem;
-}
+.recent-trips { margin-top: 4px; }
+.recent-trips__title { margin: 0 0 4px; font-size: 1rem; }
+.recent-trips__hint { margin: 0 0 12px; color: var(--text-dim); font-size: 0.82rem; }
 
 .recent-trips__list {
   list-style: none;
@@ -470,7 +426,17 @@ body {
   white-space: nowrap;
 }
 
-.recent-trip__meta {
-  font-size: 0.78rem;
-  color: var(--text-dim);
+.recent-trip__meta { font-size: 0.78rem; color: var(--text-dim); }
+
+/* --- Mobile --- */
+
+@media (max-width: 480px) {
+  .app__hero { height: 200px; }
+  .app__main, .app__footer { padding-left: 12px; padding-right: 12px; }
+  .app__header h1 { font-size: 1.4rem; }
+  .day-card__header { padding: 12px; }
+  .stop { flex-wrap: wrap; }
+  .stop__actions { flex-direction: row; align-self: flex-end; }
+  .trip-form__row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .trip-form__row .btn { width: 100%; }
 }
