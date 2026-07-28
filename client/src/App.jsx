@@ -3,11 +3,23 @@ import { usePlanTrip } from "./hooks/usePlanTrip.js";
 import TripForm from "./components/TripForm.jsx";
 import Itinerary from "./components/Itinerary.jsx";
 import RecentTrips from "./components/RecentTrips.jsx";
+import RefineBar from "./components/RefineBar.jsx";
 import { LoadingState, ErrorState, EmptyState } from "./components/StatusStates.jsx";
 import { listSessions, deleteSession } from "./lib/sessions.js";
 
 export default function App() {
-  const { status, error, itinerary, plan, reset, setItinerary, loadSession } = usePlanTrip();
+  const {
+    status,
+    error,
+    itinerary,
+    plan,
+    reset,
+    setItinerary,
+    loadSession,
+    refineStatus,
+    refineError,
+    refine,
+  } = usePlanTrip();
   const [sessions, setSessions] = useState([]);
 
   function refreshSessions() {
@@ -17,6 +29,16 @@ export default function App() {
   useEffect(() => {
     refreshSessions();
   }, [status]);
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === "Escape" && status === "error") {
+        reset();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [status, reset]);
 
   function handleDeleteSession(id) {
     deleteSession(id);
@@ -46,6 +68,7 @@ export default function App() {
           {status === "success" && itinerary && (
             <div className="itinerary-enter">
               <Itinerary itinerary={itinerary} onChange={setItinerary} />
+              <RefineBar onRefine={refine} status={refineStatus} error={refineError} />
             </div>
           )}
         </div>

@@ -9,6 +9,9 @@ export function usePlanTrip() {
   const [itinerary, setItinerary] = useState(null);
   const [lastDescription, setLastDescription] = useState("");
 
+  const [refineStatus, setRefineStatus] = useState("idle");
+  const [refineError, setRefineError] = useState(null);
+
   const latestRequestId = useRef(0);
   const abortRef = useRef(null);
 
@@ -21,6 +24,8 @@ export function usePlanTrip() {
 
     setStatus("loading");
     setError(null);
+    setRefineStatus("idle");
+    setRefineError(null);
     setLastDescription(description);
 
     try {
@@ -52,11 +57,50 @@ export function usePlanTrip() {
     }
   }, []);
 
+  const refine = useCallback(
+    async (instruction) => {
+      if (!itinerary) return;
+      const requestId = ++latestRequestId.current;
+
+      setRefineStatus("loading");
+      setRefineError(null);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/refine`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ itinerary, instruction }),
+        });
+
+        const body = await res.json().catch(() => null);
+
+        if (requestId !== latestRequestId.current) return;
+
+        if (!res.ok || !body?.itinerary) {
+          setRefineStatus("error");
+          setRefineError(body?.error || `Refinement failed (${res.status}).`);
+          return;
+        }
+
+        setItinerary(body.itinerary);
+        setRefineStatus("idle");
+        saveSession(lastDescription, body.itinerary);
+      } catch (e) {
+        if (requestId !== latestRequestId.current) return;
+        setRefineStatus("error");
+        setRefineError("Couldn't reach the server. Check your connection and try again.");
+      }
+    },
+    [itinerary, lastDescription]
+  );
+
   const reset = useCallback(() => {
     latestRequestId.current++;
     setStatus("idle");
     setError(null);
     setItinerary(null);
+    setRefineStatus("idle");
+    setRefineError(null);
   }, []);
 
   const loadSession = useCallback((session) => {
@@ -64,9 +108,23 @@ export function usePlanTrip() {
     if (abortRef.current) abortRef.current.abort();
     setStatus("success");
     setError(null);
+    setRefineStatus("idle");
+    setRefineError(null);
     setLastDescription(session.description);
     setItinerary(session.itinerary);
   }, []);
 
-  return { status, error, itinerary, lastDescription, plan, reset, setItinerary, loadSession };
+  return {
+    status,
+    error,
+    itinerary,
+    lastDescription,
+    plan,
+    reset,
+    setItinerary,
+    loadSession,
+    refineStatus,
+    refineError,
+    refine,
+  };
 }

@@ -16,6 +16,12 @@ export default function TripForm({ onSubmit, disabled }) {
     onSubmit(trimmed);
   }
 
+  function handleKeyDown(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      handleSubmit(e);
+    }
+  }
+
   return (
     <form className="trip-form" onSubmit={handleSubmit}>
       <label htmlFor="trip-description" className="trip-form__label">
@@ -27,6 +33,7 @@ export default function TripForm({ onSubmit, disabled }) {
         placeholder="e.g. 4 days in Kyoto, love temples and quiet cafes, traveling with a partner"
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
         maxLength={2000}
         rows={4}
         disabled={disabled}
