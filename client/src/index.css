@@ -30,7 +30,29 @@ body {
   flex-direction: column;
   gap: 24px;
   position: relative;
-  overflow-x: hidden;
+}
+
+.app__hero {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(180deg, rgba(15, 17, 21, 0.35) 0%, rgba(15, 17, 21, 0.75) 60%, var(--bg) 100%),
+    url("https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=2000&q=70");
+  background-size: cover;
+  background-position: center;
+  animation: kenburns 22s ease-in-out infinite alternate;
+}
+
+@keyframes kenburns {
+  from { transform: scale(1) translate(0, 0); }
+  to { transform: scale(1.15) translate(-2%, -2%); }
+}
+
+.app__header {
+  padding: 32px 16px 8px;
+  text-align: center;
 }
 
 .app__header h1 {
@@ -40,11 +62,13 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
 }
 
 .app__tagline {
   margin: 0;
   color: var(--text-dim);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 .app__main {
@@ -62,29 +86,7 @@ body {
   text-align: center;
   padding-left: 16px;
   padding-right: 16px;
-}
-
-.app__hero {
-  position: relative;
-  width: 100%;
-  height: 260px;
-  margin: 0 0 24px;
-  background-color: var(--surface-2);
-  background-image:
-    linear-gradient(180deg, rgba(15, 17, 21, 0.15) 0%, rgba(15, 17, 21, 0.55) 65%, var(--bg) 100%),
-    url("https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=70");
-  background-size: cover;
-  background-position: center 55%;
-  border-radius: 0 0 20px 20px;
-}
-
-.app__header {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  padding: 0 16px;
-  z-index: 1;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* --- Form --- */
@@ -431,7 +433,6 @@ body {
 /* --- Mobile --- */
 
 @media (max-width: 480px) {
-  .app__hero { height: 200px; }
   .app__main, .app__footer { padding-left: 12px; padding-right: 12px; }
   .app__header h1 { font-size: 1.4rem; }
   .day-card__header { padding: 12px; }
